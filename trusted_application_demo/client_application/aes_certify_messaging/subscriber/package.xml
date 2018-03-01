@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>aes_subscriber_certify</name>
+  <version>0.0.1</version>
+  <maintainer email="florian.depraz@arm.com">Florian Depraz</maintainer>
+  <description>Client Application subscribing to AES encrypted messages</description>
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <build_depend>rclcpp</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>aes_custom_interface</build_depend>
+  <build_depend>ca_security_api</build_depend>
+  <build_depend>optee_ta_security</build_depend>
+
+  <exec_depend>rclcpp</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>aes_custom_interface</exec_depend>
+  <exec_depend>ca_security_api</exec_depend>
+  <exec_depend>optee_ta_security</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
+
