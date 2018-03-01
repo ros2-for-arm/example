@@ -1,0 +1,45 @@
+cmake_minimum_required(VERSION 3.5)
+project(ca_security_api)
+
+add_compile_options(-Wall -Wextra -Wpedantic -lteec)
+find_package(ament_cmake REQUIRED)
+
+if((NOT DEFINED OPTEE_CLIENT_EXPORT) OR (NOT IS_DIRECTORY ${OPTEE_CLIENT_EXPORT}))
+  message(WARNING "OPTEE_CLIENT_EXPORT must be defined to compile ${PROJECT_NAME} -- Skipping this package")
+  return()
+endif()
+
+find_package(optee_ta_security REQUIRED)
+include_directories(${optee_ta_security_INCLUDE_DIRS}/optee_ta_security)
+
+link_directories(${OPTEE_CLIENT_EXPORT}/lib)
+include_directories(${OPTEE_CLIENT_EXPORT}/include)
+
+include_directories(include)
+set(${PROJECT_NAME}_sources
+  src/teec_utils.c
+  src/aes_api.c
+  src/rsa_api.c
+  src/hmac_api.c
+)
+
+add_library(${PROJECT_NAME} ${${PROJECT_NAME}_sources})
+
+install(TARGETS ${PROJECT_NAME}
+        DESTINATION lib/${PROJECT_NAME})
+
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
+
+install(DIRECTORY include/
+  DESTINATION include/${PROJECT_NAME}
+  FILES_MATCHING PATTERN "*.h")
+
+install(
+  TARGETS ${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+ament_package()
