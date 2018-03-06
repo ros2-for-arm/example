@@ -9,12 +9,9 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <build_depend>optee_ta_security</build_depend>
-
-  <exec_depend>optee_ta_security</exec_depend>
+  <depend>optee_ta_security</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
   </export>
 </package>
-
