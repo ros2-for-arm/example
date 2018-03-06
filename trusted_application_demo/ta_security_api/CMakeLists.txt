@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(optee_ta_security)
+project(ta_security_api)
 
 find_package(ament_cmake REQUIRED)
 

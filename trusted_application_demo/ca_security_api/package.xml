@@ -3,13 +3,13 @@
 <package format="2">
   <name>ca_security_api</name>
   <version>0.0.1</version>
-  <description>Library to interface Trusted world encryption functions</description>
+  <description>Library to interface Trusted world functions</description>
   <maintainer email="florian.depraz@arm.com">Florian Depraz</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>optee_ta_security</depend>
+  <depend>ta_security_api</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

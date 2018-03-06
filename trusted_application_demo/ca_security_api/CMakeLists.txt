@@ -9,8 +9,8 @@ if((NOT DEFINED OPTEE_CLIENT_EXPORT) OR (NOT IS_DIRECTORY ${OPTEE_CLIENT_EXPORT}
   return()
 endif()
 
-find_package(optee_ta_security REQUIRED)
-include_directories(${optee_ta_security_INCLUDE_DIRS}/optee_ta_security)
+find_package(ta_security_api REQUIRED)
+include_directories(${ta_security_api_INCLUDE_DIRS}/ta_security_api)
 
 link_directories(${OPTEE_CLIENT_EXPORT}/lib)
 include_directories(${OPTEE_CLIENT_EXPORT}/include)

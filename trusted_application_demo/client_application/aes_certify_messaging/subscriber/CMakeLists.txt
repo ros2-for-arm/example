@@ -13,7 +13,7 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 if((NOT DEFINED OPTEE_CLIENT_EXPORT) OR (NOT IS_DIRECTORY ${OPTEE_CLIENT_EXPORT}))
   message(WARNING "OPTEE_CLIENT_EXPORT must be defined to compile ${PROJECT_NAME} -- Skipping this package")
   return()
-endif(NOT IS_DIRECTORY ${OPTEE_CLIENT_EXPORT})
+endif()
 
 link_directories(${OPTEE_CLIENT_EXPORT}/lib)
 include_directories(${OPTEE_CLIENT_EXPORT}/include)
@@ -24,9 +24,9 @@ find_package(aes_custom_interface REQUIRED)
 find_package(ca_security_api REQUIRED)
 include_directories(${ca_security_api_INCLUDE_DIRS}/ca_security_api)
 
-find_package(optee_ta_security REQUIRED)
-ament_export_dependencies(optee_ta_security)
-include_directories(${optee_ta_security_INCLUDE_DIRS}/optee_ta_security)
+find_package(ta_security_api REQUIRED)
+ament_export_dependencies(ta_security_api)
+include_directories(${ta_security_api_INCLUDE_DIRS}/ta_security_api)
 
 file(GLOB_RECURSE SRC_FILES_CXX ${PROJECT_SOURCE_DIR}/*.cpp)
 
