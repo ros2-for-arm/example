@@ -100,7 +100,6 @@ private:
     }
 
     auto request = std::make_shared<GetSymmSecret::Request>();
-    request->id = 0x00;
     bool validated = false;
     while (!validated) {
       auto answer_service = client_->async_send_request(request);
