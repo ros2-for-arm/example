@@ -6,8 +6,6 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 
-set(BINARY_NAME aes_subscriber_certify)
-
 add_compile_options(-Wall -Wextra -Wpedantic)
 
 if((NOT DEFINED OPTEE_CLIENT_EXPORT) OR (NOT IS_DIRECTORY ${OPTEE_CLIENT_EXPORT}))
@@ -30,20 +28,20 @@ include_directories(${ta_security_api_INCLUDE_DIRS}/ta_security_api)
 
 file(GLOB_RECURSE SRC_FILES_CXX ${PROJECT_SOURCE_DIR}/*.cpp)
 
-add_executable(${BINARY_NAME} ${SRC_FILES_CXX})
+add_executable(${PROJECT_NAME} ${SRC_FILES_CXX})
 
-target_link_libraries(${BINARY_NAME}
+target_link_libraries(${PROJECT_NAME}
                       ${ca_security_api_LIBRARIES}
                       teec
                       )
 
-ament_target_dependencies(${BINARY_NAME}
+ament_target_dependencies(${PROJECT_NAME}
                           rclcpp
                           ca_security_api
                           aes_custom_interface)
 
 install(TARGETS
-  ${BINARY_NAME}
+  ${PROJECT_NAME}
   DESTINATION lib/${PROJECT_NAME}
 )
 

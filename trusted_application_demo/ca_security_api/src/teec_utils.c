@@ -1,22 +1,23 @@
 /*
-* Copyright (c) 2018, ARM Limited.
-*
-* SPDX-License-Identifier: Apache-2.0
-*/
+ * Copyright (c) 2018, ARM Limited.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
+#include <errno.h>
 #include <stdio.h>
-#include <err.h>
+#include <stdlib.h>
 #include <tee_client_api.h>
-#include <teec_utils.h>
 
-void teec_checkResult(TEEC_Result res,
-                      const char* function,
-                      const char* errmsg)
+#include "teec_utils.h"
+
+void
+ca_teec_check_result(TEEC_Result res, const char *function, const char *errmsg)
 {
   printf("\nRet: 0x%x ", res);
-  if(res != TEEC_SUCCESS) {
+  if (res != TEEC_SUCCESS) {
     printf("[ERROR] in %s \n[MSG] %s: ", function, errmsg);
-    switch((uint32_t) res){
+    switch ((uint32_t)res) {
     case TEEC_ERROR_GENERIC:
       printf("TEEC_ERROR_GENERIC\n");
     case TEEC_ERROR_ACCESS_DENIED:
@@ -81,42 +82,52 @@ void teec_checkResult(TEEC_Result res,
   printf("SUCCESS: %s\n", errmsg);
 }
 
-TEEC_Result teec_allocateSharedMemory(TEEC_Context* ctx,
-                                      TEEC_SharedMemory *shm, size_t sz,
-                                      uint32_t flags)
+TEEC_Result
+ca_teec_allocate_shared_memory(TEEC_Context *ctx,
+                               TEEC_SharedMemory *shm,
+                               size_t sz,
+                               uint32_t flags)
 {
   TEEC_Result res;
   shm->flags = flags;
   shm->buffer = NULL;
   shm->size = sz;
   res = TEEC_AllocateSharedMemory(ctx, shm);
-  teec_checkResult(res, __func__, "TEEC_AllocateSharedMemory");
+  ca_teec_check_result(res, __func__, "TEEC_AllocateSharedMemory");
   return res;
 }
 
-TEEC_Result teec_openSession(TEEC_UUID uuid, TEEC_Context* ctx,
-                             TEEC_Session* sess)
+TEEC_Result
+ca_teec_open_session(TEEC_UUID uuid,
+                     TEEC_Context *ctx,
+                     TEEC_Session *sess)
 {
   TEEC_Result res;
   uint32_t err_origin;
 
   res = TEEC_InitializeContext(NULL, ctx);
-  teec_checkResult(res, __func__, "TEEC_InitializeContext");
-  if(res != TEEC_SUCCESS){
+  ca_teec_check_result(res, __func__, "TEEC_InitializeContext");
+  if (res != TEEC_SUCCESS) {
     return res;
   }
 
-  res = TEEC_OpenSession(ctx, sess, &uuid, TEEC_LOGIN_PUBLIC, NULL, NULL,
-        &err_origin);
-  teec_checkResult(res, __func__, "TEEC_OpenSession");
-  if(res != TEEC_SUCCESS){
+  res = TEEC_OpenSession(ctx,
+                         sess,
+                         &uuid,
+                         TEEC_LOGIN_PUBLIC,
+                         NULL,
+                         NULL,
+                         &err_origin);
+  ca_teec_check_result(res, __func__, "TEEC_OpenSession");
+  if (res != TEEC_SUCCESS) {
     TEEC_CloseSession(sess);
   }
 
   return res;
 }
 
-void teec_closeSession(TEEC_Context* ctx, TEEC_Session* sess)
+void
+ca_teec_close_session(TEEC_Context *ctx, TEEC_Session *sess)
 {
   TEEC_CloseSession(sess);
   TEEC_FinalizeContext(ctx);

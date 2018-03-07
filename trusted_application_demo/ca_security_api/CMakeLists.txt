@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
 project(ca_security_api)
 
-add_compile_options(-Wall -Wextra -Wpedantic -lteec)
-find_package(ament_cmake REQUIRED)
+add_compile_options(-Wall -Wextra -Wpedantic)
+find_package(ament_cmake_ros REQUIRED)
 
 if((NOT DEFINED OPTEE_CLIENT_EXPORT) OR (NOT IS_DIRECTORY ${OPTEE_CLIENT_EXPORT}))
   message(WARNING "OPTEE_CLIENT_EXPORT must be defined to compile ${PROJECT_NAME} -- Skipping this package")
