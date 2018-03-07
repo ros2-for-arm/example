@@ -11,7 +11,10 @@
 #include <tee_internal_api_extensions.h>
 #include <stdint.h>
 
-TEE_Result ta_utils_create_handle(TEE_ObjectHandle object_handle,
-                                  uint32_t algorithm, uint32_t mode,
-                                  TEE_OperationHandle* op_handle);
+TEE_Result
+ta_utils_create_handle(TEE_ObjectHandle object_handle,
+                       uint32_t algorithm,
+                       uint32_t mode,
+                       TEE_OperationHandle *op_handle);
+
 #endif // TA_SECURITY_API__TA_UTILS_H_

@@ -88,31 +88,31 @@ static uint8_t RSA1024_KEY1_PUBLIC_EXPONENT[3] = {
 #define INITIALIZE_ATTRIBUTE_PARAMETERS_RSA(attribute, keyName) \
         attribute[0].attributeID = TEE_ATTR_RSA ## _MODULUS;          \
         attribute[0].content.ref.buffer = keyName ## _MODULUS;        \
-        attribute[0].content.ref.length = sizeof(keyName ## _MODULUS); \
+        attribute[0].content.ref.length = sizeof(keyName ## _MODULUS);\
   \
         attribute[1].attributeID = TEE_ATTR_RSA ## _PUBLIC_EXPONENT;          \
         attribute[1].content.ref.buffer = keyName ## _PUBLIC_EXPONENT;        \
-        attribute[1].content.ref.length = sizeof(keyName ## _PUBLIC_EXPONENT); \
+        attribute[1].content.ref.length = sizeof(keyName ## _PUBLIC_EXPONENT);\
   \
         attribute[2].attributeID = TEE_ATTR_RSA ## _PRIVATE_EXPONENT;          \
         attribute[2].content.ref.buffer = keyName ## _PRIVATE_EXPONENT;        \
-        attribute[2].content.ref.length = sizeof(keyName ## _PRIVATE_EXPONENT); \
+        attribute[2].content.ref.length = sizeof(keyName ## _PRIVATE_EXPONENT);\
   \
         attribute[3].attributeID = TEE_ATTR_RSA ## _PRIME1;          \
         attribute[3].content.ref.buffer = keyName ## _PRIME1;        \
-        attribute[3].content.ref.length = sizeof(keyName ## _PRIME1); \
+        attribute[3].content.ref.length = sizeof(keyName ## _PRIME1);\
   \
         attribute[4].attributeID = TEE_ATTR_RSA ## _PRIME2;          \
         attribute[4].content.ref.buffer = keyName ## _PRIME2;        \
-        attribute[4].content.ref.length = sizeof(keyName ## _PRIME2); \
+        attribute[4].content.ref.length = sizeof(keyName ## _PRIME2);\
   \
         attribute[5].attributeID = TEE_ATTR_RSA ## _EXPONENT1;          \
         attribute[5].content.ref.buffer = keyName ## _EXPONENT1;        \
-        attribute[5].content.ref.length = sizeof(keyName ## _EXPONENT1); \
+        attribute[5].content.ref.length = sizeof(keyName ## _EXPONENT1);\
   \
         attribute[6].attributeID = TEE_ATTR_RSA ## _EXPONENT2;          \
         attribute[6].content.ref.buffer = keyName ## _EXPONENT2;        \
-        attribute[6].content.ref.length = sizeof(keyName ## _EXPONENT2); \
+        attribute[6].content.ref.length = sizeof(keyName ## _EXPONENT2);\
   \
         attribute[7].attributeID = TEE_ATTR_RSA ## _COEFFICIENT;          \
         attribute[7].content.ref.buffer = keyName ## _COEFFICIENT;        \
