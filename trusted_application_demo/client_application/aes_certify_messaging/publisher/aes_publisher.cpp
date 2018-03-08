@@ -25,15 +25,13 @@ extern "C" {
 // Number of messages that will be sent by the publisher.
 #define PUBLISHER_MAX_NUMBER_MESSAGE 100
 
-using namespace std;
-using namespace placeholders;
-using namespace aes_custom_interface::srv;
-using namespace aes_custom_interface::msg;
+using AesMessageCertify = aes_custom_interface::msg::AesMessageCertify;
+using GetSymmSecret = aes_custom_interface::srv::GetSymmSecret;
 
 class AesPublisher : public rclcpp::Node
 {
 public:
-  AesPublisher(string topic_name, string service_name)
+  AesPublisher(std::string topic_name, std::string service_name)
   : Node("publisher_and_server")
   {
     publisher = this->create_publisher<AesMessageCertify>(topic_name, rmw_qos_profile_default);
@@ -51,7 +49,8 @@ public:
       aes_key_rsa_encrypted_shm.size, &sha1_rsa_certified_shm));
 
     // Create the service used to ask for the secret
-    auto bind_service_handler = bind(&AesPublisher::handle_service, this, _1, _2, _3);
+    auto bind_service_handler = std::bind(&AesPublisher::handle_service, this,
+      std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
     publisher_service = this->create_service<GetSymmSecret>(service_name,
       bind_service_handler, rmw_qos_profile_default);
 
@@ -90,7 +89,7 @@ public:
     return true;
   }
 
-public:
+private:
   void handle_service(const std::shared_ptr<rmw_request_id_t> request_header,
     const std::shared_ptr<GetSymmSecret::Request> request,
     const std::shared_ptr<GetSymmSecret::Response> response)
@@ -105,7 +104,6 @@ public:
     response->sha.assign(rsa_sha, rsa_sha + sha1_rsa_certified_shm.size);
   }
 
-private:
   void allocate_memory_ta()
   {
     // Allocate shared memory for the input message in clear.
@@ -145,8 +143,8 @@ int main(int argc, char *argv[])
   rclcpp::init(argc, argv);
   rclcpp::executors::MultiThreadedExecutor executor;
 
-  string topic("secure_msg");
-  string service("service_aes");
+  std::string topic("secure_msg");
+  std::string service("service_aes");
 
   auto node = std::make_shared<AesPublisher>(topic, service);
   rclcpp::Rate loop_rate(10);

@@ -23,14 +23,14 @@ extern "C" {
 // Max number of byte for a message.
 #define SUBSCRIBER_MAX_MESSAGE_SIZE 18
 
-using namespace std;
-using namespace placeholders;
-using namespace aes_custom_interface::srv;
-using namespace aes_custom_interface::msg;
+using AesMessageCertify = aes_custom_interface::msg::AesMessageCertify;
+using GetSymmSecret = aes_custom_interface::srv::GetSymmSecret;
+using GetSymmSecret_Response = aes_custom_interface::srv::GetSymmSecret_Response;
+using GetSymmSecret_Request = aes_custom_interface::srv::GetSymmSecret_Request;
 
 class AesSubscriber : public rclcpp::Node {
 public:
-  AesSubscriber(string topic_name, string service_name)
+  AesSubscriber(std::string topic_name, std::string service_name)
   : Node("subscriber_and_client") {
     TEEC_UUID uuid = TA_TRUSTED_UUID;
 
@@ -47,14 +47,14 @@ public:
 
     // Subscribe to the corresponding topic
     subscription = this->create_subscription<AesMessageCertify>(topic_name,
-      std::bind(&AesSubscriber::topic_callback, this, _1));
+      std::bind(&AesSubscriber::topic_callback, this, std::placeholders::_1));
 
     RCLCPP_INFO(this->get_logger(), "Subscriber initialized with topic:\"%s\", service:\"%s\"",
       topic_name.c_str(), service_name.c_str())
   }
 
-  GetSymmSecret_Response::SharedPtr
-  send_request(rclcpp::Node::SharedPtr node,
+private:
+  GetSymmSecret_Response::SharedPtr send_request(rclcpp::Node::SharedPtr node,
     rclcpp::Client<GetSymmSecret>::SharedPtr client,
     GetSymmSecret_Request::SharedPtr request)
   {
@@ -68,7 +68,6 @@ public:
     }
   }
 
-private:
   void allocate_memory_ta()
   {
     // Used to store the published message
@@ -86,7 +85,7 @@ private:
       &aes_encrypted_key_shm, RSA_API_SIZE_ENCRYPTED_BYTE, TEEC_MEM_INPUT));
   }
 
-  void waiting_for_secret(string service)
+  void waiting_for_secret(std::string service)
   {
     auto client_ = this->create_client<GetSymmSecret>(service);
 
@@ -167,8 +166,8 @@ private:
 
 int main(int argc, char *argv[])
 {
-  string topic("secure_msg");
-  string service("service_aes");
+  std::string topic("secure_msg");
+  std::string service("service_aes");
 
   rclcpp::init(argc, argv);
   rclcpp::executors::MultiThreadedExecutor executor;
