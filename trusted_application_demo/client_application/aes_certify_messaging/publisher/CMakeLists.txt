@@ -6,6 +6,11 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
 add_compile_options(-Wall -Wextra -Wpedantic)
 
 # Trusted application libraries
@@ -34,14 +39,12 @@ add_executable(${PROJECT_NAME} ${SRC_FILES_CXX})
 
 target_link_libraries(${PROJECT_NAME}
                       ${ca_security_api_LIBRARIES}
-                      teec
-                      )
+                      teec)
 
 ament_target_dependencies(${PROJECT_NAME}
                           rclcpp
                           ca_security_api
-                          aes_custom_interface
-                          )
+                          aes_custom_interface)
 
 install(TARGETS ${PROJECT_NAME}
         DESTINATION lib/${PROJECT_NAME}

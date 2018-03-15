@@ -8,10 +8,7 @@ BINARY ?= aed3b02c-8e42-11e7-bb31be2e44b06b34
 
 all: $(BINARY).ta
 
-clean: clean_ta_file
-.PHONY: clean_ta_file
-clean_ta_file:
-	rm -f $(BINARY).*
+clean_build:
 	rm -f *.o
 	rm -f *.o.*
 	rm -f *.d
@@ -19,3 +16,6 @@ clean_ta_file:
 	rm -f *.lds
 	rm -f .*.d
 	rm -f .*.cmd
+
+clean_proper: clean_build
+	rm -f $(BINARY).*

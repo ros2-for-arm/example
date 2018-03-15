@@ -3,7 +3,7 @@
 <package format="3">
 	<name>aes_custom_interface</name>
 	<version>0.0.1</version>
-	<description>Contains message and service definitions used by the examples.</description>
+	<description>Contains message and service definition used for AES certification example</description>
 	<maintainer email="florian.depraz@arm.com">Florian Depraz</maintainer>
 	<license>Apache License 2.0</license>
 

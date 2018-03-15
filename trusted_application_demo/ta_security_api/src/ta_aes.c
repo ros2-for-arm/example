@@ -1,39 +1,43 @@
-/*
- * Copyright (c) 2018, ARM Limited.
- *
- * SPDX-License-Identifier: Apache-2.0
- */
+//
+// Copyright (c) 2018, ARM Limited.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
 
 #include <tee_internal_api.h>
 #include <tee_internal_api_extensions.h>
 
-#include "ta_aes.h"
-#include "ta_public.h"
-#include "ta_rsa.h"
-#include "ta_utils.h"
+#include "ta_security_api/ta_public.h"
+
+#include "ta_security_api/ta_aes.h"
+#include "ta_security_api/ta_rsa.h"
+#include "ta_security_api/ta_utils.h"
 
 static TEE_OperationHandle aes_encrypt_op_handle;
 static TEE_OperationHandle aes_decrypt_op_handle;
 static TEE_OperationHandle hmac_op_handle;
 
 static TEE_Result
-ta_aes_initialize_key(void *aes_secret,
-                      uint32_t size_secret,
-                      uint32_t key_size_bit,
-                      TEE_OperationHandle *encrypt_op_handle,
-                      TEE_OperationHandle *decrypt_op_handle);
-static TEE_Result
-ta_aes_initialize_hmac(void *aes_secret,
-                       uint32_t size_secret,
-                       uint32_t key_size_bit,
-                       TEE_OperationHandle *hmac_handle);
-
+ta_aes_initialize_key(
+  void * aes_secret,
+  uint32_t size_secret,
+  uint32_t key_size_bit,
+  TEE_OperationHandle * encrypt_op_handle,
+  TEE_OperationHandle * decrypt_op_handle);
 
 static TEE_Result
-ta_aes_initialize_hmac(void *aes_secret,
-                       uint32_t size_secret,
-                       uint32_t key_size_bit,
-                       TEE_OperationHandle *hmac_handle)
+ta_aes_initialize_hmac(
+  void * aes_secret,
+  uint32_t size_secret,
+  uint32_t key_size_bit,
+  TEE_OperationHandle * hmac_handle);
+
+static TEE_Result
+ta_aes_initialize_hmac(
+  void * aes_secret,
+  uint32_t size_secret,
+  uint32_t key_size_bit,
+  TEE_OperationHandle * hmac_handle)
 {
   TEE_Attribute attrs[1];
   TEE_ObjectHandle object_handle;
@@ -46,8 +50,8 @@ ta_aes_initialize_hmac(void *aes_secret,
   // Object handle should not be initialized
   object_handle = (TEE_ObjectHandle)NULL;
   result = TEE_AllocateTransientObject(TEE_TYPE_HMAC_SHA1,
-                                       key_size_bit,
-                                       &object_handle);
+      key_size_bit,
+      &object_handle);
   if (TEE_SUCCESS != result) {
     return result;
   }
@@ -59,9 +63,9 @@ ta_aes_initialize_hmac(void *aes_secret,
 
   // Allocate the operation handle for decryption
   result = ta_utils_create_handle(object_handle,
-                                  TEE_ALG_HMAC_SHA1,
-                                  TEE_MODE_MAC,
-                                  hmac_handle);
+      TEE_ALG_HMAC_SHA1,
+      TEE_MODE_MAC,
+      hmac_handle);
   if (TEE_SUCCESS != result) {
     return result;
   }
@@ -77,11 +81,12 @@ ta_aes_initialize_hmac(void *aes_secret,
  * AES and HMAC.
  */
 static TEE_Result
-ta_aes_initialize_key(void *aes_secret,
-                      uint32_t size_secret,
-                      uint32_t key_size_bit,
-                      TEE_OperationHandle *encrypt_op_handle,
-                      TEE_OperationHandle *decrypt_op_handle)
+ta_aes_initialize_key(
+  void * aes_secret,
+  uint32_t size_secret,
+  uint32_t key_size_bit,
+  TEE_OperationHandle * encrypt_op_handle,
+  TEE_OperationHandle * decrypt_op_handle)
 {
   TEE_Attribute attrs[1];
   TEE_ObjectHandle object_handle;
@@ -106,8 +111,8 @@ ta_aes_initialize_key(void *aes_secret,
   object_handle = (TEE_ObjectHandle)NULL;
   // Allocate the object handle that is used to store the key
   result = TEE_AllocateTransientObject(TEE_TYPE_AES,
-                                       key_size_bit,
-                                       &object_handle);
+      key_size_bit,
+      &object_handle);
   if (TEE_SUCCESS != result) {
     return result;
   }
@@ -120,18 +125,18 @@ ta_aes_initialize_key(void *aes_secret,
 
   // Allocate the operation handle for encryption
   result = ta_utils_create_handle(object_handle,
-                                  TEE_ALG_AES_CBC_NOPAD,
-                                  TEE_MODE_ENCRYPT,
-                                  encrypt_op_handle);
+      TEE_ALG_AES_CBC_NOPAD,
+      TEE_MODE_ENCRYPT,
+      encrypt_op_handle);
   if (TEE_SUCCESS != result) {
     return result;
   }
 
   // Allocate the operation handle for decryption
   result = ta_utils_create_handle(object_handle,
-                                  TEE_ALG_AES_CBC_NOPAD,
-                                  TEE_MODE_DECRYPT,
-                                  decrypt_op_handle);
+      TEE_ALG_AES_CBC_NOPAD,
+      TEE_MODE_DECRYPT,
+      decrypt_op_handle);
   if (TEE_SUCCESS != result) {
     return result;
   }
@@ -145,12 +150,13 @@ ta_aes_initialize_key(void *aes_secret,
  * returned encrypted through RSA.
  */
 TEE_Result
-ta_aes_generate_and_encrypt_key(uint32_t key_size_bit,
-                                void *buff_out,
-                                uint32_t *size_buff_out)
+ta_aes_generate_and_encrypt_key(
+  uint32_t key_size_bit,
+  void * buff_out,
+  uint32_t * size_buff_out)
 {
   TEE_Result result = TEE_SUCCESS;
-  void *aes_secret;
+  void * aes_secret;
   uint32_t size_aes_secret_byte;
 
   if (!TA_AES_IS_KEY_SIZE_SUPPORTED(key_size_bit)) {
@@ -162,27 +168,27 @@ ta_aes_generate_and_encrypt_key(uint32_t key_size_bit,
   TEE_GenerateRandom(aes_secret, size_aes_secret_byte);
 
   result = ta_aes_initialize_hmac(aes_secret,
-                                  size_aes_secret_byte,
-                                  key_size_bit,
-                                  &hmac_op_handle);
+      size_aes_secret_byte,
+      key_size_bit,
+      &hmac_op_handle);
   if (TEE_SUCCESS != result) {
     goto error;
   }
 
   result = ta_aes_initialize_key(aes_secret,
-                                 size_aes_secret_byte,
-                                 key_size_bit,
-                                 &aes_encrypt_op_handle,
-                                 &aes_decrypt_op_handle);
+      size_aes_secret_byte,
+      key_size_bit,
+      &aes_encrypt_op_handle,
+      &aes_decrypt_op_handle);
   if (TEE_SUCCESS != result) {
     goto error;
   }
 
   result = ta_rsa_operation(TA_RSA_ENCRYPT,
-                            aes_secret,
-                            size_aes_secret_byte,
-                            buff_out,
-                            size_buff_out);
+      aes_secret,
+      size_aes_secret_byte,
+      buff_out,
+      size_buff_out);
   if (TEE_SUCCESS != result) {
     goto error;
   }
@@ -197,39 +203,39 @@ error:
  * and thus should be decrypted before storing it.
  */
 TEE_Result
-ta_aes_decrypt_and_allocate_key(uint32_t key_size_bit,
-                                void *buffer_in,
-                                uint32_t size_buff_in)
+ta_aes_decrypt_and_allocate_key(
+  uint32_t key_size_bit,
+  void * buffer_in,
+  uint32_t size_buff_in)
 {
   TEE_Result result = TEE_SUCCESS;
-  void *aes_secret;
+  void * aes_secret;
   uint32_t size_aes_secret;
 
   size_aes_secret = size_buff_in;
   aes_secret = TEE_Malloc(size_buff_in, 0);
   result = ta_rsa_operation(TA_RSA_DECRYPT,
-                            buffer_in,
-                            size_buff_in,
-                            aes_secret,
-                            &size_aes_secret);
-
+      buffer_in,
+      size_buff_in,
+      aes_secret,
+      &size_aes_secret);
   if (TEE_SUCCESS != result) {
     goto error;
   }
 
   result = ta_aes_initialize_hmac(aes_secret,
-                                  key_size_bit / 8,
-                                  key_size_bit,
-                                  &hmac_op_handle);
+      key_size_bit / 8,
+      key_size_bit,
+      &hmac_op_handle);
   if (TEE_SUCCESS != result) {
     goto error;
   }
 
   result = ta_aes_initialize_key(aes_secret,
-                                 key_size_bit / 8,
-                                 key_size_bit,
-                                 &aes_encrypt_op_handle,
-                                 &aes_decrypt_op_handle);
+      key_size_bit / 8,
+      key_size_bit,
+      &aes_encrypt_op_handle,
+      &aes_decrypt_op_handle);
   if (TEE_SUCCESS != result) {
     goto error;
   }
@@ -246,19 +252,20 @@ error:
  * have a size of at least 20 bytes for SHA1 HMAC
  */
 TEE_Result
-ta_aes_hmac_digest(void *buff_in,
-                   uint32_t size_buff_in,
-                   void *buff_out,
-                   uint32_t *size_buff_out)
+ta_aes_hmac_digest(
+  void * buff_in,
+  uint32_t size_buff_in,
+  void * buff_out,
+  uint32_t * size_buff_out)
 {
   TEE_Result result = TEE_SUCCESS;
 
   TEE_MACInit(hmac_op_handle, (void *)NULL, 0);
   result = TEE_MACComputeFinal(hmac_op_handle,
-                               buff_in,
-                               size_buff_in,
-                               buff_out,
-                               size_buff_out);
+      buff_in,
+      size_buff_in,
+      buff_out,
+      size_buff_out);
   return result;
 }
 
@@ -266,18 +273,19 @@ ta_aes_hmac_digest(void *buff_in,
  * Get the message and compare its digest to check if it has been certified.
  */
 TEE_Result
-ta_aes_hmac_compare(void *buff_in,
-                    uint32_t size_buff_in,
-                    void *sha_in,
-                    uint32_t size_sha_in)
+ta_aes_hmac_compare(
+  void * buff_in,
+  uint32_t size_buff_in,
+  void * sha_in,
+  uint32_t size_sha_in)
 {
   TEE_Result result = TEE_SUCCESS;
 
   TEE_MACInit(hmac_op_handle, (void *)NULL, 0);
   result = TEE_MACCompareFinal(hmac_op_handle,
-                               buff_in,
-                               size_buff_in,
-                               sha_in,
-                               size_sha_in);
+      buff_in,
+      size_buff_in,
+      sha_in,
+      size_sha_in);
   return result;
 }

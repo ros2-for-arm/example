@@ -1,24 +1,22 @@
-/*
-* Copyright (c) 2018, ARM Limited.
-*
-* SPDX-License-Identifier: Apache-2.0
-*/
+//
+// Copyright (c) 2018, ARM Limited.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
 
-#include "rclcpp/rclcpp.hpp"
-
-#include "aes_custom_interface/msg/aes_message_certify.hpp"
-#include "aes_custom_interface/srv/get_symm_secret.hpp"
+#include <tee_client_api.h>
+#include <ta_security_api/ta_public.h>
+#include <ca_security_api/aes_api.h>
+#include <ca_security_api/hmac_api.h>
+#include <ca_security_api/rsa_api.h>
+#include <ca_security_api/teec_utils.h>
 
 #include <string>
+#include <memory>
 
-extern "C" {
-#include <aes_api.h>
-#include <hmac_api.h>
-#include <rsa_api.h>
-#include <ta_public.h>
-#include <tee_client_api.h>
-#include <teec_utils.h>
-}
+#include "rclcpp/rclcpp.hpp"
+#include "aes_custom_interface/msg/aes_message_certify.hpp"
+#include "aes_custom_interface/srv/get_symm_secret.hpp"
 
 // Max number of byte for a message.
 #define SUBSCRIBER_MAX_MESSAGE_SIZE 18
@@ -28,10 +26,12 @@ using GetSymmSecret = aes_custom_interface::srv::GetSymmSecret;
 using GetSymmSecret_Response = aes_custom_interface::srv::GetSymmSecret_Response;
 using GetSymmSecret_Request = aes_custom_interface::srv::GetSymmSecret_Request;
 
-class AesSubscriber : public rclcpp::Node {
+class AesSubscriber : public rclcpp::Node
+{
 public:
   AesSubscriber(std::string topic_name, std::string service_name)
-  : Node("subscriber_and_client") {
+  : Node("subscriber_and_client")
+  {
     TEEC_UUID uuid = TA_TRUSTED_UUID;
 
     ca_teec_exit_on_failure(&ctx, &sess, ca_teec_open_session(uuid, &ctx, &sess));
@@ -47,21 +47,23 @@ public:
 
     // Subscribe to the corresponding topic
     subscription = this->create_subscription<AesMessageCertify>(topic_name,
-      std::bind(&AesSubscriber::topic_callback, this, std::placeholders::_1));
+        std::bind(&AesSubscriber::topic_callback, this, std::placeholders::_1));
 
     RCLCPP_INFO(this->get_logger(), "Subscriber initialized with topic:\"%s\", service:\"%s\"",
       topic_name.c_str(), service_name.c_str())
   }
 
 private:
-  GetSymmSecret_Response::SharedPtr send_request(rclcpp::Node::SharedPtr node,
+  GetSymmSecret_Response::SharedPtr send_request(
+    rclcpp::Node::SharedPtr node,
     rclcpp::Client<GetSymmSecret>::SharedPtr client,
     GetSymmSecret_Request::SharedPtr request)
   {
     auto result = client->async_send_request(request);
     // Wait for the result.
     if (rclcpp::spin_until_future_complete(node, result) ==
-      rclcpp::executor::FutureReturnCode::SUCCESS) {
+      rclcpp::executor::FutureReturnCode::SUCCESS)
+    {
       return result.get();
     } else {
       return NULL;
@@ -112,40 +114,39 @@ private:
 
       // Fill the shared memory with the AES secret encrypted by RSA
       auto result = answer_service.get();
-      uint8_t *aes_secret = (uint8_t *)aes_encrypted_key_shm.buffer;
+      uint8_t * aes_secret = reinterpret_cast<uint8_t *>(aes_encrypted_key_shm.buffer);
       for (uint32_t i = 0; i < result->secret.size() && i < aes_encrypted_key_shm.size; i++) {
         aes_secret[i] = result->secret[i];
       }
 
       // Fill the shared memory with the RSA signature of the digested key
-      uint8_t *rsa_digest = (uint8_t *)sha1_rsa_signed_shm.buffer;
+      uint8_t * rsa_digest = reinterpret_cast<uint8_t *>(sha1_rsa_signed_shm.buffer);
       for (uint32_t i = 0; i < result->sha.size() && i < sha1_rsa_signed_shm.size; i++) {
         rsa_digest[i] = result->sha[i];
       }
 
       // Check that the digest is valid
       validated = ca_rsa_verify(&sess, &aes_encrypted_key_shm, aes_encrypted_key_shm.size,
-        &sha1_rsa_signed_shm, sha1_rsa_signed_shm.size);
+          &sha1_rsa_signed_shm, sha1_rsa_signed_shm.size);
     }
   }
 
   void topic_callback(const AesMessageCertify::SharedPtr msg)
   {
     // Copy the content of the message into the shared memory location
-    uint8_t *clear_cast = (uint8_t *)clear_message_shm.buffer;
+    uint8_t * clear_cast = reinterpret_cast<uint8_t *>(clear_message_shm.buffer);
     for (uint32_t i = 0; i < msg->message.size() && i < clear_message_shm.size; i++) {
       clear_cast[i] = msg->message[i];
     }
 
     // Copy the content of digest into the shared memory location
-    uint8_t *sha_cast = (uint8_t *)sha_shm.buffer;
+    uint8_t * sha_cast = reinterpret_cast<uint8_t *>(sha_shm.buffer);
     for (uint32_t i = 0; i < msg->sha.size() && i < sha_shm.size; i++) {
       sha_cast[i] = msg->sha[i];
     }
 
     // Compare the digest of the message with the actual digest sent
-    if (ca_hmac_compare(&sess, &clear_message_shm, &sha_shm, msg->message.size()))
-    {
+    if (ca_hmac_compare(&sess, &clear_message_shm, &sha_shm, msg->message.size())) {
       std::string message((const char *)clear_cast);
       RCLCPP_INFO(this->get_logger(), "Message authenticated: \"%s\"", clear_cast);
     } else {
@@ -164,7 +165,7 @@ private:
   rclcpp::Subscription<AesMessageCertify>::SharedPtr subscription;
 };
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
   std::string topic("secure_msg");
   std::string service("service_aes");

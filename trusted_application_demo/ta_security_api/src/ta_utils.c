@@ -1,28 +1,29 @@
-/*
- * Copyright (c) 2018, ARM Limited.
- *
- * SPDX-License-Identifier: Apache-2.0
- */
+//
+// Copyright (c) 2018, ARM Limited.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
 
 #include <tee_internal_api.h>
 #include <tee_internal_api_extensions.h>
 
-#include "ta_utils.h"
+#include "ta_security_api/ta_utils.h"
 
 TEE_Result
-ta_utils_create_handle(TEE_ObjectHandle object_handle,
-                       uint32_t algorithm,
-                       uint32_t mode,
-                       TEE_OperationHandle *op_handle)
+ta_utils_create_handle(
+  TEE_ObjectHandle object_handle,
+  uint32_t algorithm,
+  uint32_t mode,
+  TEE_OperationHandle * op_handle)
 {
   TEE_Result result;
   TEE_ObjectInfo keyInfo;
 
   TEE_GetObjectInfo(object_handle, &keyInfo);
   result = TEE_AllocateOperation(op_handle,
-                                 algorithm,
-                                 mode,
-                                 keyInfo.maxObjectSize);
+      algorithm,
+      mode,
+      keyInfo.maxObjectSize);
   if (TEE_SUCCESS != result) {
     return result;
   }

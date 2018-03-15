@@ -1,24 +1,22 @@
-/*
-* Copyright (c) 2018, ARM Limited.
-*
-* SPDX-License-Identifier: Apache-2.0
-*/
+//
+// Copyright (c) 2018, ARM Limited.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
 
-#include "rclcpp/rclcpp.hpp"
-
-#include "aes_custom_interface/msg/aes_message_certify.hpp"
-#include "aes_custom_interface/srv/get_symm_secret.hpp"
+#include <tee_client_api.h>
+#include <ta_security_api/ta_public.h>
+#include <ca_security_api/aes_api.h>
+#include <ca_security_api/hmac_api.h>
+#include <ca_security_api/rsa_api.h>
+#include <ca_security_api/teec_utils.h>
 
 #include <string>
+#include <memory>
 
-extern "C" {
-#include <aes_api.h>
-#include <hmac_api.h>
-#include <rsa_api.h>
-#include <ta_public.h>
-#include <tee_client_api.h>
-#include <teec_utils.h>
-}
+#include "rclcpp/rclcpp.hpp"
+#include "aes_custom_interface/msg/aes_message_certify.hpp"
+#include "aes_custom_interface/srv/get_symm_secret.hpp"
 
 // Max number of byte for a message.
 #define PUBLISHER_MAX_MESSAGE_SIZE 18
@@ -50,9 +48,9 @@ public:
 
     // Create the service used to ask for the secret
     auto bind_service_handler = std::bind(&AesPublisher::handle_service, this,
-      std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+        std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
     publisher_service = this->create_service<GetSymmSecret>(service_name,
-      bind_service_handler, rmw_qos_profile_default);
+        bind_service_handler, rmw_qos_profile_default);
 
     // Message ID used for all the messages.
     message_id = 0;
@@ -64,9 +62,9 @@ public:
   bool send_msg(void)
   {
     // Create the message at the correct memory location
-    char *clear_message_cast = (char *)clear_message_shm.buffer;
+    char * clear_message_cast = reinterpret_cast<char *>(clear_message_shm.buffer);
     snprintf(clear_message_cast, PUBLISHER_MAX_MESSAGE_SIZE,
-             "Hello World %04d!", message_id++);
+      "Hello World %04d!", message_id++);
 
     // Certify the message
     ca_teec_exit_on_failure(&ctx, &sess, ca_hmac_compute(&sess, &clear_message_shm, &sha1_hmac_shm,
@@ -74,7 +72,7 @@ public:
 
     auto aes_message = std::make_shared<AesMessageCertify>();
     aes_message->message.assign(clear_message_cast, clear_message_cast + clear_message_shm.size);
-    uint8_t *castsha_shm = (uint8_t *)sha1_hmac_shm.buffer;
+    uint8_t * castsha_shm = reinterpret_cast<uint8_t *>(sha1_hmac_shm.buffer);
     aes_message->sha.assign(castsha_shm, castsha_shm + sha1_hmac_shm.size);
 
     RCLCPP_INFO(this->get_logger(), "Publishing certified message: \"%s\"", clear_message_cast)
@@ -90,17 +88,18 @@ public:
   }
 
 private:
-  void handle_service(const std::shared_ptr<rmw_request_id_t> request_header,
+  void handle_service(
+    const std::shared_ptr<rmw_request_id_t> request_header,
     const std::shared_ptr<GetSymmSecret::Request> request,
     const std::shared_ptr<GetSymmSecret::Response> response)
   {
     (void)request_header;
     (void)request;
 
-    uint8_t *aes_key = (uint8_t *)aes_key_rsa_encrypted_shm.buffer;
+    uint8_t * aes_key = reinterpret_cast<uint8_t *>(aes_key_rsa_encrypted_shm.buffer);
     response->secret.assign(aes_key, aes_key + aes_key_rsa_encrypted_shm.size);
 
-    uint8_t *rsa_sha = (uint8_t *)sha1_rsa_certified_shm.buffer;
+    uint8_t * rsa_sha = reinterpret_cast<uint8_t *>(sha1_rsa_certified_shm.buffer);
     response->sha.assign(rsa_sha, rsa_sha + sha1_rsa_certified_shm.size);
   }
 
@@ -138,7 +137,7 @@ private:
   uint32_t message_id;
 };
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
   rclcpp::executors::MultiThreadedExecutor executor;

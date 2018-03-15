@@ -9,12 +9,20 @@ set(TA_BINARY_NAME aed3b02c-8e42-11e7-bb31be2e44b06b34)
 
 # Check if the mandatory folders are defined
 message("Using OPTEE_CLIENT_EXPORT=" ${OPTEE_CLIENT_EXPORT})
-message("Using OPTEE_OS_EXPORT=" ${OPTEE_OS_EXPORT})
-if((NOT DEFINED OPTEE_CLIENT_EXPORT) OR (NOT DEFINED OPTEE_OS_EXPORT)
-    OR (NOT IS_DIRECTORY ${OPTEE_CLIENT_EXPORT})
-    OR (NOT IS_DIRECTORY ${OPTEE_OS_EXPORT}))
-  message(WARNING "OPTEE_OS_EXPORT and OPTEE_CLIENT_EXPORT must be defined to compile ${PROJECT_NAME} -- Skipping this package")
+if(NOT DEFINED OPTEE_CLIENT_EXPORT OR NOT IS_DIRECTORY ${OPTEE_CLIENT_EXPORT})
+  message(WARNING "OPTEE_OS_EXPORT must be defined to compile ${PROJECT_NAME} -- Skipping this package")
   return()
+endif()
+
+message("Using OPTEE_OS_EXPORT=" ${OPTEE_OS_EXPORT})
+if(NOT DEFINED OPTEE_OS_EXPORT OR NOT IS_DIRECTORY ${OPTEE_OS_EXPORT})
+  message(WARNING "OPTEE_OS_EXPORT must be defined to compile ${PROJECT_NAME} -- Skipping this package")
+  return()
+endif()
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
 endif()
 
 set(TA_SRC_C src/ta_aes.c
@@ -28,15 +36,13 @@ set(TA_SRC_C src/ta_aes.c
 add_custom_command(
   OUTPUT ${TA_BINARY_NAME}
   PRE_BUILD
-  COMMAND $(MAKE) clean
-  COMMAND $(MAKE) BINARY=${TA_BINARY_NAME}
-               CROSS_COMPILE=$ENV{CROSS_COMPILE}
-               TEEC_EXPORT=${OPTEE_CLIENT_EXPORT}
-               TA_DEV_KIT_DIR=${OPTEE_OS_EXPORT}
+  COMMAND $(MAKE) clean_proper
+  COMMAND $(MAKE) BINARY=${TA_BINARY_NAME} CROSS_COMPILE=$ENV{CROSS_COMPILE} TEEC_EXPORT=${OPTEE_CLIENT_EXPORT} TA_DEV_KIT_DIR=${OPTEE_OS_EXPORT}
+  POST_BUILD
+  COMMAND $(MAKE) clean_build
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
   COMMENT "Generating trusted application"
-  DEPENDS ${TA_SRC_C}
-)
+  DEPENDS ${TA_SRC_C})
 
 # Compile the TA inside the package
 add_custom_target(do_ta ALL DEPENDS ${TA_BINARY_NAME})
@@ -46,9 +52,9 @@ ament_export_include_directories(include)
 # Copy the include/ folder content into install/include/${PROJECT_NAME}
 install(DIRECTORY include/
   DESTINATION include/${PROJECT_NAME}
-  FILES_MATCHING PATTERN "*.h")
+  FILES_MATCHING PATTERN "ta_public.h")
 
-# Copy the created .ta into install/lib/${PROJECT_NAME}
+# Copy the created binaries into install/lib/${PROJECT_NAME}
 install(FILES
   src/${TA_BINARY_NAME}.ta
   DESTINATION lib/${PROJECT_NAME}

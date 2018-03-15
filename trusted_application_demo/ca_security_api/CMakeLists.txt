@@ -4,6 +4,11 @@ project(ca_security_api)
 add_compile_options(-Wall -Wextra -Wpedantic)
 find_package(ament_cmake_ros REQUIRED)
 
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
 if((NOT DEFINED OPTEE_CLIENT_EXPORT) OR (NOT IS_DIRECTORY ${OPTEE_CLIENT_EXPORT}))
   message(WARNING "OPTEE_CLIENT_EXPORT must be defined to compile ${PROJECT_NAME} -- Skipping this package")
   return()
@@ -16,12 +21,12 @@ link_directories(${OPTEE_CLIENT_EXPORT}/lib)
 include_directories(${OPTEE_CLIENT_EXPORT}/include)
 
 include_directories(include)
+
 set(${PROJECT_NAME}_sources
-  src/teec_utils.c
-  src/aes_api.c
-  src/rsa_api.c
-  src/hmac_api.c
-)
+    src/teec_utils.c
+    src/aes_api.c
+    src/rsa_api.c
+    src/hmac_api.c)
 
 add_library(${PROJECT_NAME} ${${PROJECT_NAME}_sources})
 
