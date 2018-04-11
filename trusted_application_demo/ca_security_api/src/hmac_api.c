@@ -18,7 +18,7 @@ ca_hmac_compute(
   TEEC_Session * session,
   TEEC_SharedMemory * in,
   TEEC_SharedMemory * sha_out,
-  uint32_t size_in)
+  size_t size_in)
 {
   uint32_t ret_origin;
   TEEC_Operation op;
@@ -39,7 +39,7 @@ ca_hmac_compute(
       TA_COMMAND_HMAC_COMPUTE_DIGEST,
       &op,
       &ret_origin);
-  ca_teec_check_result(res, __func__, "TEEC_InvokeCommand TA_HMAC_COMPUTE");
+  ca_teec_print_result(res, __func__, "TEEC_InvokeCommand TA_HMAC_COMPUTE");
   return res;
 }
 
@@ -48,7 +48,7 @@ ca_hmac_compare(
   TEEC_Session * session,
   TEEC_SharedMemory * message_in,
   TEEC_SharedMemory * sha_in,
-  uint32_t size_message)
+  size_t size_message)
 {
   uint32_t ret_origin;
   TEEC_Operation op;
@@ -69,7 +69,7 @@ ca_hmac_compare(
       &op,
       &ret_origin);
 
-  ca_teec_check_result(res,
+  ca_teec_print_result(res,
     __func__,
     "TEEC_InvokeCommand TA_COMMAND_HMAC_COMPARE_DIGESTS");
 

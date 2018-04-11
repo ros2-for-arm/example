@@ -23,24 +23,24 @@ ca_rsa_operate(
   TEEC_Session * session,
   uint32_t opcode,
   TEEC_SharedMemory * in,
-  uint32_t size_in,
+  size_t size_in,
   TEEC_SharedMemory * out,
-  uint32_t size_out);
+  size_t size_out);
 
 TEEC_Result
 ca_rsa_certify(
   TEEC_Session * session,
   TEEC_SharedMemory * in,
-  uint32_t size_in,
+  size_t size_in,
   TEEC_SharedMemory * sha_out);
 
 bool
 ca_rsa_verify(
   TEEC_Session * session,
   TEEC_SharedMemory * message_in,
-  uint32_t size_message_in,
+  size_t size_message_in,
   TEEC_SharedMemory * sha_in,
-  uint32_t size_sha_in);
+  size_t size_sha_in);
 
 # if __cplusplus
 }

@@ -15,7 +15,7 @@ TEEC_Result
 ca_aes_generate_encrypted_key(
   TEEC_Session * session,
   TEEC_SharedMemory * key,
-  uint32_t size_out)
+  size_t size_out)
 {
   uint32_t ret_origin;
   TEEC_Operation op;
@@ -33,7 +33,7 @@ ca_aes_generate_encrypted_key(
       TA_COMMAND_GENERATE_AND_ENCRYPT_SECRET,
       &op,
       &ret_origin);
-  ca_teec_check_result(res,
+  ca_teec_print_result(res,
     __func__,
     "TEEC_InvokeCommand TA_GENERATE_ENCRYPT_AES_KEY");
   return res;
@@ -43,7 +43,7 @@ TEEC_Result
 ca_aes_decrypt_and_allocate_key(
   TEEC_Session * session,
   TEEC_SharedMemory * encrypted_key,
-  uint32_t size_encrypted_key)
+  size_t size_encrypted_key)
 {
   uint32_t ret_origin;
   TEEC_Operation op;
@@ -61,7 +61,7 @@ ca_aes_decrypt_and_allocate_key(
       TA_COMMAND_DECRYPT_AND_STORE_SECRET,
       &op,
       &ret_origin);
-  ca_teec_check_result(res,
+  ca_teec_print_result(res,
     __func__,
     "TEEC_InvokeCommand TA_DECRYPT_ALLOCATE_AES_KEY");
   return res;

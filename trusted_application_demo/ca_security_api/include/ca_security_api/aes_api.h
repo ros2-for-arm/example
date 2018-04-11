@@ -17,12 +17,12 @@ extern "C"
 TEEC_Result ca_aes_generate_encrypted_key(
   TEEC_Session * session,
   TEEC_SharedMemory * key,
-  uint32_t size_out);
+  size_t size_out);
 
 TEEC_Result ca_aes_decrypt_and_allocate_key(
   TEEC_Session * session,
   TEEC_SharedMemory * encrypted_key,
-  uint32_t size_encrypted_key);
+  size_t size_encrypted_key);
 
 # if __cplusplus
 }

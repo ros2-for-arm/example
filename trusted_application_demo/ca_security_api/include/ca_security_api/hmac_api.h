@@ -22,14 +22,14 @@ ca_hmac_compute(
   TEEC_Session * session,
   TEEC_SharedMemory * in,
   TEEC_SharedMemory * sha_out,
-  uint32_t size_in);
+  size_t size_in);
 
 bool
 ca_hmac_compare(
   TEEC_Session * session,
   TEEC_SharedMemory * message_in,
   TEEC_SharedMemory * sha_in,
-  uint32_t size_message);
+  size_t size_message);
 
 # if __cplusplus
 }

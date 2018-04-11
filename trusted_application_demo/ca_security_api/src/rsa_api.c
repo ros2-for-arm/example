@@ -16,9 +16,9 @@ ca_rsa_operate(
   TEEC_Session * session,
   uint32_t opcode,
   TEEC_SharedMemory * in,
-  uint32_t size_in,
+  size_t size_in,
   TEEC_SharedMemory * out,
-  uint32_t size_out)
+  size_t size_out)
 {
   uint32_t ret_origin;
   TEEC_Operation op;
@@ -37,7 +37,7 @@ ca_rsa_operate(
   op.params[2].memref.size = size_out;
 
   res = TEEC_InvokeCommand(session, TA_COMMAND_RSA_OPERATION, &op, &ret_origin);
-  ca_teec_check_result(res,
+  ca_teec_print_result(res,
     __func__,
     "TEEC_InvokeCommand TA_COMMAND_RSA_OPERATION");
   return res;
@@ -47,7 +47,7 @@ TEEC_Result
 ca_rsa_certify(
   TEEC_Session * session,
   TEEC_SharedMemory * in,
-  uint32_t size_in,
+  size_t size_in,
   TEEC_SharedMemory * sha_out)
 {
   uint32_t ret_origin;
@@ -69,7 +69,7 @@ ca_rsa_certify(
       TA_COMMAND_RSA_COMPUTE_DIGEST,
       &op,
       &ret_origin);
-  ca_teec_check_result(res, __func__, "TEEC_InvokeCommand TA_RSA_SIGN_COMPUTE");
+  ca_teec_print_result(res, __func__, "TEEC_InvokeCommand TA_RSA_SIGN_COMPUTE");
   return res;
 }
 
@@ -77,9 +77,9 @@ bool
 ca_rsa_verify(
   TEEC_Session * session,
   TEEC_SharedMemory * message_in,
-  uint32_t size_message_in,
+  size_t size_message_in,
   TEEC_SharedMemory * sha_in,
-  uint32_t size_sha_in)
+  size_t size_sha_in)
 {
   uint32_t ret_origin;
   TEEC_Operation op;
@@ -102,7 +102,7 @@ ca_rsa_verify(
   if (TEEC_SUCCESS != res) {
     return false;
   }
-  ca_teec_check_result(res,
+  ca_teec_print_result(res,
     __func__,
     "TEEC_InvokeCommand TA_RSA_VERIFY_COMPARE");
   return true;

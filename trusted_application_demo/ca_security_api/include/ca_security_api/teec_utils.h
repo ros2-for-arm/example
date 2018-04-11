@@ -16,7 +16,10 @@ extern "C"
 #include <tee_client_api.h>
 
 void
-ca_teec_check_result(TEEC_Result res, const char * function, const char * errmsg);
+ca_teec_print_result(
+  TEEC_Result res,
+  const char * function,
+  const char * errmsg);
 
 TEEC_Result
 ca_teec_allocate_shared_memory(
@@ -32,7 +35,10 @@ void
 ca_teec_close_session(TEEC_Context * ctx, TEEC_Session * sess);
 
 inline void
-ca_teec_exit_on_failure(TEEC_Context * ctx, TEEC_Session * sess, TEEC_Result res)
+ca_teec_exit_on_failure(
+  TEEC_Context * ctx,
+  TEEC_Session * sess,
+  TEEC_Result res)
 {
   if (TEEC_SUCCESS != res) {
     if (NULL != ctx && NULL != sess) {

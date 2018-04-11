@@ -18,9 +18,6 @@
 #include "aes_custom_interface/msg/aes_message_certify.hpp"
 #include "aes_custom_interface/srv/get_symm_secret.hpp"
 
-// Max number of byte for a message.
-#define SUBSCRIBER_MAX_MESSAGE_SIZE 18
-
 using AesMessageCertify = aes_custom_interface::msg::AesMessageCertify;
 using GetSymmSecret = aes_custom_interface::srv::GetSymmSecret;
 using GetSymmSecret_Response = aes_custom_interface::srv::GetSymmSecret_Response;
@@ -29,9 +26,10 @@ using GetSymmSecret_Request = aes_custom_interface::srv::GetSymmSecret_Request;
 class AesSubscriber : public rclcpp::Node
 {
 public:
-  AesSubscriber(std::string topic_name, std::string service_name)
+  AesSubscriber(std::string topic_name, std::string service_name, uint32_t max_message_size)
   : Node("subscriber_and_client")
   {
+    this->max_message_size = max_message_size;
     TEEC_UUID uuid = TA_TRUSTED_UUID;
 
     ca_teec_exit_on_failure(&ctx, &sess, ca_teec_open_session(uuid, &ctx, &sess));
@@ -60,7 +58,7 @@ private:
     GetSymmSecret_Request::SharedPtr request)
   {
     auto result = client->async_send_request(request);
-    // Wait for the result.
+    // Wait for the result of the service request
     if (rclcpp::spin_until_future_complete(node, result) ==
       rclcpp::executor::FutureReturnCode::SUCCESS)
     {
@@ -74,7 +72,7 @@ private:
   {
     // Used to store the published message
     ca_teec_exit_on_failure(&ctx, &sess, ca_teec_allocate_shared_memory(&ctx, &clear_message_shm,
-      SUBSCRIBER_MAX_MESSAGE_SIZE, TEEC_MEM_INPUT));
+      max_message_size, TEEC_MEM_INPUT));
     // Used to store the digest of the message signed by AES
     ca_teec_exit_on_failure(&ctx, &sess, ca_teec_allocate_shared_memory(&ctx, &sha_shm,
       HMAC_API_SHA1_SIZE_BYTE, TEEC_MEM_INPUT));
@@ -115,13 +113,13 @@ private:
       // Fill the shared memory with the AES secret encrypted by RSA
       auto result = answer_service.get();
       uint8_t * aes_secret = reinterpret_cast<uint8_t *>(aes_encrypted_key_shm.buffer);
-      for (uint32_t i = 0; i < result->secret.size() && i < aes_encrypted_key_shm.size; i++) {
+      for (size_t i = 0; i < result->secret.size() && i < aes_encrypted_key_shm.size; i++) {
         aes_secret[i] = result->secret[i];
       }
 
       // Fill the shared memory with the RSA signature of the digested key
       uint8_t * rsa_digest = reinterpret_cast<uint8_t *>(sha1_rsa_signed_shm.buffer);
-      for (uint32_t i = 0; i < result->sha.size() && i < sha1_rsa_signed_shm.size; i++) {
+      for (size_t i = 0; i < result->sha.size() && i < sha1_rsa_signed_shm.size; i++) {
         rsa_digest[i] = result->sha[i];
       }
 
@@ -135,13 +133,13 @@ private:
   {
     // Copy the content of the message into the shared memory location
     uint8_t * clear_cast = reinterpret_cast<uint8_t *>(clear_message_shm.buffer);
-    for (uint32_t i = 0; i < msg->message.size() && i < clear_message_shm.size; i++) {
+    for (size_t i = 0; i < msg->message.size() && i < clear_message_shm.size; i++) {
       clear_cast[i] = msg->message[i];
     }
 
     // Copy the content of digest into the shared memory location
     uint8_t * sha_cast = reinterpret_cast<uint8_t *>(sha_shm.buffer);
-    for (uint32_t i = 0; i < msg->sha.size() && i < sha_shm.size; i++) {
+    for (size_t i = 0; i < msg->sha.size() && i < sha_shm.size; i++) {
       sha_cast[i] = msg->sha[i];
     }
 
@@ -161,6 +159,9 @@ private:
   TEEC_SharedMemory aes_encrypted_key_shm;
   TEEC_SharedMemory sha1_rsa_signed_shm;
 
+  // Max number of byte for a message.
+  uint32_t max_message_size;
+
   TEEC_SharedMemory rsa_sha_shm;
   rclcpp::Subscription<AesMessageCertify>::SharedPtr subscription;
 };
@@ -170,10 +171,24 @@ int main(int argc, char * argv[])
   std::string topic("secure_msg");
   std::string service("service_aes");
 
+  uint32_t max_message_size = 18;
+
+  for (int i = 1; i < argc; i++) {
+    if (i + 1 != argc) {
+      if (strncmp(argv[i], "-m", 2) != 0) {
+        max_message_size = strtoul(argv[i + 1], NULL, 10);
+      } else {
+        std::cout << "Usage: "<< argv[0] << "\n";
+        std::cout << " [-m <unsigned int>] maximum message size\n";
+        exit(0);
+      }
+    }
+  }
+
   rclcpp::init(argc, argv);
   rclcpp::executors::MultiThreadedExecutor executor;
 
-  auto node = std::make_shared<AesSubscriber>(topic, service);
+  auto node = std::make_shared<AesSubscriber>(topic, service, max_message_size);
   rclcpp::Rate loop_rate(10);
   executor.add_node(node);
 
