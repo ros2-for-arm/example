@@ -20,10 +20,12 @@ ta_utils_create_handle(
   TEE_ObjectInfo keyInfo;
 
   TEE_GetObjectInfo(object_handle, &keyInfo);
-  result = TEE_AllocateOperation(op_handle,
-      algorithm,
-      mode,
-      keyInfo.maxObjectSize);
+  result = TEE_AllocateOperation(
+    op_handle,
+    algorithm,
+    mode,
+    keyInfo.maxObjectSize);
+
   if (TEE_SUCCESS != result) {
     return result;
   }

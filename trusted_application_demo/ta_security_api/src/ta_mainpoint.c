@@ -40,10 +40,12 @@ TA_OpenSessionEntryPoint(
   void ** sessionContext)
 {
   TEE_Result result;
-  uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_NONE,
-      TEE_PARAM_TYPE_NONE,
-      TEE_PARAM_TYPE_NONE,
-      TEE_PARAM_TYPE_NONE);
+  uint32_t exp_param_types = TEE_PARAM_TYPES(
+    TEE_PARAM_TYPE_NONE,
+    TEE_PARAM_TYPE_NONE,
+    TEE_PARAM_TYPE_NONE,
+    TEE_PARAM_TYPE_NONE);
+
   if (param_types != exp_param_types) {
     return TEE_ERROR_BAD_PARAMETERS;
   }
@@ -87,10 +89,12 @@ ta_mainpoint_hmac_digest(uint32_t param_types, TEE_Param params[4])
   void * hmac_digest;
   uint32_t size_message;
   uint32_t * size_hmac_digest;
-  uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT,
-      TEE_PARAM_TYPE_MEMREF_OUTPUT,
-      TEE_PARAM_TYPE_NONE,
-      TEE_PARAM_TYPE_NONE);
+  uint32_t exp_param_types = TEE_PARAM_TYPES(
+    TEE_PARAM_TYPE_MEMREF_INPUT,
+    TEE_PARAM_TYPE_MEMREF_OUTPUT,
+    TEE_PARAM_TYPE_NONE,
+    TEE_PARAM_TYPE_NONE);
+
   if (param_types != exp_param_types) {
     return TEE_ERROR_BAD_PARAMETERS;
   }
@@ -101,10 +105,12 @@ ta_mainpoint_hmac_digest(uint32_t param_types, TEE_Param params[4])
   hmac_digest = (void *)params[1].memref.buffer;
   size_hmac_digest = &(params[1].memref.size);
 
-  result = ta_aes_hmac_digest(message,
-      size_message,
-      hmac_digest,
-      size_hmac_digest);
+  result = ta_aes_hmac_digest(
+    message,
+    size_message,
+    hmac_digest,
+    size_hmac_digest);
+
   return result;
 }
 
@@ -122,10 +128,12 @@ ta_mainpoint_hmac_compare(uint32_t param_types, TEE_Param params[4])
   void * hmac_digest;
   uint32_t size_message;
   uint32_t size_hmac_digest;
-  uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT,
-      TEE_PARAM_TYPE_MEMREF_INPUT,
-      TEE_PARAM_TYPE_NONE,
-      TEE_PARAM_TYPE_NONE);
+  uint32_t exp_param_types = TEE_PARAM_TYPES(
+    TEE_PARAM_TYPE_MEMREF_INPUT,
+    TEE_PARAM_TYPE_MEMREF_INPUT,
+    TEE_PARAM_TYPE_NONE,
+    TEE_PARAM_TYPE_NONE);
+
   if (param_types != exp_param_types) {
     return TEE_ERROR_BAD_PARAMETERS;
   }
@@ -136,10 +144,12 @@ ta_mainpoint_hmac_compare(uint32_t param_types, TEE_Param params[4])
   hmac_digest = (void *)params[1].memref.buffer;
   size_hmac_digest = params[1].memref.size;
 
-  result = ta_aes_hmac_compare(message,
-      size_message,
-      hmac_digest,
-      size_hmac_digest);
+  result = ta_aes_hmac_compare(
+    message,
+    size_message,
+    hmac_digest,
+    size_hmac_digest);
+
   return result;
 }
 
@@ -161,10 +171,12 @@ ta_mainpoint_rsa_operation(uint32_t param_types, TEE_Param params[4])
   uint32_t size_buff_in;
   uint32_t * size_buff_out;
 
-  uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INPUT,
-      TEE_PARAM_TYPE_MEMREF_INPUT,
-      TEE_PARAM_TYPE_MEMREF_OUTPUT,
-      TEE_PARAM_TYPE_NONE);
+  uint32_t exp_param_types = TEE_PARAM_TYPES(
+    TEE_PARAM_TYPE_VALUE_INPUT,
+    TEE_PARAM_TYPE_MEMREF_INPUT,
+    TEE_PARAM_TYPE_MEMREF_OUTPUT,
+    TEE_PARAM_TYPE_NONE);
+
   if (param_types != exp_param_types) {
     return TEE_ERROR_BAD_PARAMETERS;
   }
@@ -177,11 +189,13 @@ ta_mainpoint_rsa_operation(uint32_t param_types, TEE_Param params[4])
   buff_out = (void *)params[2].memref.buffer;
   size_buff_out = &(params[2].memref.size);
 
-  result = ta_rsa_operation(mode,
-      buff_in,
-      size_buff_in,
-      buff_out,
-      size_buff_out);
+  result = ta_rsa_operation(
+    mode,
+    buff_in,
+    size_buff_in,
+    buff_out,
+    size_buff_out);
+
   return result;
 }
 
@@ -199,10 +213,12 @@ ta_mainpoint_generate_and_encrypt_secret(
   TEE_Result result = TEE_SUCCESS;
   void * encrypted_aes_secret;
   uint32_t * size_encrypted_aes_secret;
-  uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INOUT,
-      TEE_PARAM_TYPE_NONE,
-      TEE_PARAM_TYPE_NONE,
-      TEE_PARAM_TYPE_NONE);
+  uint32_t exp_param_types = TEE_PARAM_TYPES(
+    TEE_PARAM_TYPE_MEMREF_INOUT,
+    TEE_PARAM_TYPE_NONE,
+    TEE_PARAM_TYPE_NONE,
+    TEE_PARAM_TYPE_NONE);
+
   if (param_types != exp_param_types) {
     return TEE_ERROR_BAD_PARAMETERS;
   }
@@ -210,9 +226,11 @@ ta_mainpoint_generate_and_encrypt_secret(
   encrypted_aes_secret = (void *)params[0].memref.buffer;
   size_encrypted_aes_secret = &(params[0].memref.size);
 
-  result = ta_aes_generate_and_encrypt_key(TA_AES128_SIZE,
-      encrypted_aes_secret,
-      size_encrypted_aes_secret);
+  result = ta_aes_generate_and_encrypt_key(
+    TA_AES128_SIZE,
+    encrypted_aes_secret,
+    size_encrypted_aes_secret);
+
   return result;
 }
 
@@ -229,10 +247,12 @@ ta_mainpoint_decrypt_and_store_secret(
   void * encrypted_aes_secret;
   uint32_t size_encrypted_aes_secret;
 
-  uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT,
-      TEE_PARAM_TYPE_NONE,
-      TEE_PARAM_TYPE_NONE,
-      TEE_PARAM_TYPE_NONE);
+  uint32_t exp_param_types = TEE_PARAM_TYPES(
+    TEE_PARAM_TYPE_MEMREF_INPUT,
+    TEE_PARAM_TYPE_NONE,
+    TEE_PARAM_TYPE_NONE,
+    TEE_PARAM_TYPE_NONE);
+
   if (param_types != exp_param_types) {
     return TEE_ERROR_BAD_PARAMETERS;
   }
@@ -240,9 +260,11 @@ ta_mainpoint_decrypt_and_store_secret(
   encrypted_aes_secret = (void *)params[0].memref.buffer;
   size_encrypted_aes_secret = params[0].memref.size;
 
-  result = ta_aes_decrypt_and_allocate_key(TA_AES128_SIZE,
-      encrypted_aes_secret,
-      size_encrypted_aes_secret);
+  result = ta_aes_decrypt_and_allocate_key(
+    TA_AES128_SIZE,
+    encrypted_aes_secret,
+    size_encrypted_aes_secret);
+
   return result;
 }
 
@@ -255,10 +277,12 @@ ta_mainpoint_rsa_sign_digest(uint32_t param_types, TEE_Param params[4])
   uint32_t size_message;
   uint32_t size_rsa_digest;
 
-  uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INOUT,
-      TEE_PARAM_TYPE_MEMREF_OUTPUT,
-      TEE_PARAM_TYPE_NONE,
-      TEE_PARAM_TYPE_NONE);
+  uint32_t exp_param_types = TEE_PARAM_TYPES(
+    TEE_PARAM_TYPE_MEMREF_INOUT,
+    TEE_PARAM_TYPE_MEMREF_OUTPUT,
+    TEE_PARAM_TYPE_NONE,
+    TEE_PARAM_TYPE_NONE);
+
   if (param_types != exp_param_types) {
     return TEE_ERROR_BAD_PARAMETERS;
   }
@@ -269,10 +293,12 @@ ta_mainpoint_rsa_sign_digest(uint32_t param_types, TEE_Param params[4])
   rsa_digest = (void *)params[1].memref.buffer;
   size_rsa_digest = params[1].memref.size;
 
-  result = ta_rsa_sign_digest(message,
-      size_message,
-      rsa_digest,
-      &size_rsa_digest);
+  result = ta_rsa_sign_digest(
+    message,
+    size_message,
+    rsa_digest,
+    &size_rsa_digest);
+
   return result;
 }
 
@@ -285,10 +311,12 @@ ta_mainpoint_rsa_compare_digest(uint32_t param_types, TEE_Param params[4])
   uint32_t size_buff_in;
   uint32_t size_buff_sha_in;
 
-  uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT,
-      TEE_PARAM_TYPE_MEMREF_INPUT,
-      TEE_PARAM_TYPE_NONE,
-      TEE_PARAM_TYPE_NONE);
+  uint32_t exp_param_types = TEE_PARAM_TYPES(
+    TEE_PARAM_TYPE_MEMREF_INPUT,
+    TEE_PARAM_TYPE_MEMREF_INPUT,
+    TEE_PARAM_TYPE_NONE,
+    TEE_PARAM_TYPE_NONE);
+
   if (param_types != exp_param_types) {
     return TEE_ERROR_BAD_PARAMETERS;
   }
@@ -299,10 +327,12 @@ ta_mainpoint_rsa_compare_digest(uint32_t param_types, TEE_Param params[4])
   buff_sha_in = (void *)params[1].memref.buffer;
   size_buff_sha_in = params[1].memref.size;
 
-  result = ta_rsa_compare_digest(buff_in,
-      size_buff_in,
-      buff_sha_in,
-      size_buff_sha_in);
+  result = ta_rsa_compare_digest(
+    buff_in,
+    size_buff_in,
+    buff_sha_in,
+    size_buff_sha_in);
+
   return result;
 }
 

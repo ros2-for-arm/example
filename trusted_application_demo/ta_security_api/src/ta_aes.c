@@ -48,10 +48,12 @@ ta_aes_initialize_hmac(
   attrs[0].content.ref.length = size_secret;
 
   // Object handle should not be initialized
-  object_handle = (TEE_ObjectHandle)NULL;
-  result = TEE_AllocateTransientObject(TEE_TYPE_HMAC_SHA1,
-      key_size_bit,
-      &object_handle);
+  object_handle = (TEE_ObjectHandle) NULL;
+  result = TEE_AllocateTransientObject(
+    TEE_TYPE_HMAC_SHA1,
+    key_size_bit,
+    &object_handle);
+
   if (TEE_SUCCESS != result) {
     return result;
   }
@@ -62,10 +64,12 @@ ta_aes_initialize_hmac(
   }
 
   // Allocate the operation handle for decryption
-  result = ta_utils_create_handle(object_handle,
-      TEE_ALG_HMAC_SHA1,
-      TEE_MODE_MAC,
-      hmac_handle);
+  result = ta_utils_create_handle(
+    object_handle,
+    TEE_ALG_HMAC_SHA1,
+    TEE_MODE_MAC,
+    hmac_handle);
+
   if (TEE_SUCCESS != result) {
     return result;
   }
@@ -110,9 +114,11 @@ ta_aes_initialize_key(
   // Object handle should not be initialized
   object_handle = (TEE_ObjectHandle)NULL;
   // Allocate the object handle that is used to store the key
-  result = TEE_AllocateTransientObject(TEE_TYPE_AES,
-      key_size_bit,
-      &object_handle);
+  result = TEE_AllocateTransientObject(
+    TEE_TYPE_AES,
+    key_size_bit,
+    &object_handle);
+
   if (TEE_SUCCESS != result) {
     return result;
   }
@@ -124,19 +130,23 @@ ta_aes_initialize_key(
   }
 
   // Allocate the operation handle for encryption
-  result = ta_utils_create_handle(object_handle,
-      TEE_ALG_AES_CBC_NOPAD,
-      TEE_MODE_ENCRYPT,
-      encrypt_op_handle);
+  result = ta_utils_create_handle(
+    object_handle,
+    TEE_ALG_AES_CBC_NOPAD,
+    TEE_MODE_ENCRYPT,
+    encrypt_op_handle);
+
   if (TEE_SUCCESS != result) {
     return result;
   }
 
   // Allocate the operation handle for decryption
-  result = ta_utils_create_handle(object_handle,
-      TEE_ALG_AES_CBC_NOPAD,
-      TEE_MODE_DECRYPT,
-      decrypt_op_handle);
+  result = ta_utils_create_handle(
+    object_handle,
+    TEE_ALG_AES_CBC_NOPAD,
+    TEE_MODE_DECRYPT,
+    decrypt_op_handle);
+
   if (TEE_SUCCESS != result) {
     return result;
   }
@@ -167,28 +177,34 @@ ta_aes_generate_and_encrypt_key(
   aes_secret = TEE_Malloc(size_aes_secret_byte, TEE_MALLOC_FILL_ZERO);
   TEE_GenerateRandom(aes_secret, size_aes_secret_byte);
 
-  result = ta_aes_initialize_hmac(aes_secret,
-      size_aes_secret_byte,
-      key_size_bit,
-      &hmac_op_handle);
+  result = ta_aes_initialize_hmac(
+    aes_secret,
+    size_aes_secret_byte,
+    key_size_bit,
+    &hmac_op_handle);
+
   if (TEE_SUCCESS != result) {
     goto error;
   }
 
-  result = ta_aes_initialize_key(aes_secret,
-      size_aes_secret_byte,
-      key_size_bit,
-      &aes_encrypt_op_handle,
-      &aes_decrypt_op_handle);
+  result = ta_aes_initialize_key(
+    aes_secret,
+    size_aes_secret_byte,
+    key_size_bit,
+    &aes_encrypt_op_handle,
+    &aes_decrypt_op_handle);
+
   if (TEE_SUCCESS != result) {
     goto error;
   }
 
-  result = ta_rsa_operation(TA_RSA_ENCRYPT,
-      aes_secret,
-      size_aes_secret_byte,
-      buff_out,
-      size_buff_out);
+  result = ta_rsa_operation(
+    TA_RSA_ENCRYPT,
+    aes_secret,
+    size_aes_secret_byte,
+    buff_out,
+    size_buff_out);
+
   if (TEE_SUCCESS != result) {
     goto error;
   }
@@ -214,28 +230,34 @@ ta_aes_decrypt_and_allocate_key(
 
   size_aes_secret = size_buff_in;
   aes_secret = TEE_Malloc(size_buff_in, 0);
-  result = ta_rsa_operation(TA_RSA_DECRYPT,
-      buffer_in,
-      size_buff_in,
-      aes_secret,
-      &size_aes_secret);
+  result = ta_rsa_operation(
+    TA_RSA_DECRYPT,
+    buffer_in,
+    size_buff_in,
+    aes_secret,
+    &size_aes_secret);
+
   if (TEE_SUCCESS != result) {
     goto error;
   }
 
-  result = ta_aes_initialize_hmac(aes_secret,
-      key_size_bit / 8,
-      key_size_bit,
-      &hmac_op_handle);
+  result = ta_aes_initialize_hmac(
+    aes_secret,
+    key_size_bit / 8,
+    key_size_bit,
+    &hmac_op_handle);
+
   if (TEE_SUCCESS != result) {
     goto error;
   }
 
-  result = ta_aes_initialize_key(aes_secret,
-      key_size_bit / 8,
-      key_size_bit,
-      &aes_encrypt_op_handle,
-      &aes_decrypt_op_handle);
+  result = ta_aes_initialize_key(
+    aes_secret,
+    key_size_bit / 8,
+    key_size_bit,
+    &aes_encrypt_op_handle,
+    &aes_decrypt_op_handle);
+
   if (TEE_SUCCESS != result) {
     goto error;
   }
@@ -261,11 +283,13 @@ ta_aes_hmac_digest(
   TEE_Result result = TEE_SUCCESS;
 
   TEE_MACInit(hmac_op_handle, (void *)NULL, 0);
-  result = TEE_MACComputeFinal(hmac_op_handle,
-      buff_in,
-      size_buff_in,
-      buff_out,
-      size_buff_out);
+  result = TEE_MACComputeFinal(
+    hmac_op_handle,
+    buff_in,
+    size_buff_in,
+    buff_out,
+    size_buff_out);
+
   return result;
 }
 
@@ -282,10 +306,12 @@ ta_aes_hmac_compare(
   TEE_Result result = TEE_SUCCESS;
 
   TEE_MACInit(hmac_op_handle, (void *)NULL, 0);
-  result = TEE_MACCompareFinal(hmac_op_handle,
-      buff_in,
-      size_buff_in,
-      sha_in,
-      size_sha_in);
+  result = TEE_MACCompareFinal(
+    hmac_op_handle,
+    buff_in,
+    size_buff_in,
+    sha_in,
+    size_sha_in);
+
   return result;
 }

@@ -60,16 +60,20 @@ ca_hmac_compare(
   op.params[1].memref.parent = sha_in;
   op.params[1].memref.size = sha_in->size;
 
-  op.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_PARTIAL_INPUT,
-      TEEC_MEMREF_PARTIAL_INPUT,
-      TEEC_NONE,
-      TEEC_NONE);
-  res = TEEC_InvokeCommand(session,
-      TA_COMMAND_HMAC_COMPARE_DIGESTS,
-      &op,
-      &ret_origin);
+  op.paramTypes = TEEC_PARAM_TYPES(
+    TEEC_MEMREF_PARTIAL_INPUT,
+    TEEC_MEMREF_PARTIAL_INPUT,
+    TEEC_NONE,
+    TEEC_NONE);
 
-  ca_teec_print_result(res,
+  res = TEEC_InvokeCommand(
+    session,
+    TA_COMMAND_HMAC_COMPARE_DIGESTS,
+    &op,
+    &ret_origin);
+
+  ca_teec_print_result(
+    res,
     __func__,
     "TEEC_InvokeCommand TA_COMMAND_HMAC_COMPARE_DIGESTS");
 

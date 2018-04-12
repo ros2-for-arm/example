@@ -116,13 +116,14 @@ ca_teec_open_session(
     return res;
   }
 
-  res = TEEC_OpenSession(ctx,
-      sess,
-      &uuid,
-      TEEC_LOGIN_PUBLIC,
-      NULL,
-      NULL,
-      &err_origin);
+  res = TEEC_OpenSession(
+    ctx,
+    sess,
+    &uuid,
+    TEEC_LOGIN_PUBLIC,
+    NULL,
+    NULL,
+    &err_origin);
   ca_teec_print_result(res, __func__, "TEEC_OpenSession");
   if (TEEC_SUCCESS != res) {
     TEEC_CloseSession(sess);
